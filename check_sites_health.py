@@ -1,25 +1,20 @@
 import pythonwhois
-import urllib.request
-import urllib.error
+import requests
 from tld import get_tld
 from datetime import datetime
 
 
 def load_urls4check(path):
-    urls4check = []
     with open(path) as urls_file:
-        for url in urls_file.readlines():
-            urls4check.append(url.rstrip('\n'))
-    return urls4check
+        return urls_file.readlines()
 
 
 def is_server_respond_with_200(url):
-    try:
-        response = urllib.request.urlopen(url)
-    except urllib.error.HTTPError as e:
-        return False
-    else:
+    response = requests.get(url)
+    if response.status_code == 200:
         return True
+    else:
+        return False
 
 
 def get_domain_expiration_date(domain_name):
@@ -28,9 +23,10 @@ def get_domain_expiration_date(domain_name):
 
 
 if __name__ == '__main__':
-    days_in_month = 31
+    days_amount_4check = 31
     urls = load_urls4check('urls.txt')
     for url in urls:
+        url = url.rstrip('\n')
         print('\nИнформация по %s:' % url)
         if is_server_respond_with_200(url):
             print('Cервер отвечает на запрос статусом HTTP 200')
@@ -39,7 +35,9 @@ if __name__ == '__main__':
         days_between_dates = (
             get_domain_expiration_date(get_tld(url))-datetime.today()
         ).days
-        if days_between_dates > days_in_month:
-            print('Доменное имя сайта проплачено минимум на 1 месяц вперед')
+        if days_between_dates > days_amount_4check:
+            print('Доменное имя сайта проплачено минимум на %s день вперед'
+                  % days_amount_4check)
         else:
-            print('Доменное имя сайта НЕ проплачено минимум на 1 месяц вперед')
+            print('Доменное имя сайта НЕ проплачено минимум на %s день вперед'
+                  % days_amount_4check)
