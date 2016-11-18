@@ -28,16 +28,16 @@ if __name__ == '__main__':
     args = parser.parse_args()
     urls = load_urls4check(args.filepath)
     for url in urls:
-        is_OK = True
+        is_ok = True
         if is_server_respond_with_200(url):
-            is_OK = False
+            is_ok = False
             print(url + 'FAIL!\nCервер НЕ отвечает на запрос статусом 200')
         days_between_dates = (
             get_domain_expiration_date(get_tld(url)) - datetime.today()
         ).days
         if days_between_dates < days_amount_4check:
-            is_OK = False
+            is_ok = False
             print(url + 'FAIL!\nДоменное имя сайта НЕ проплачено на %s день'
                   % days_amount_4check)
-        if is_OK:
+        if is_ok:
             print("OK!")
